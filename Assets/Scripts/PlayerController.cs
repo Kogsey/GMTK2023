@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -21,15 +20,17 @@ public class PlayerController : MonoBehaviour
 	public float BaseDashImpulse;
 
 	[Space(SubSpace)]
-	public float SlowDownMultiplier;
-
-	[Space(SubSpace)]
 	public float FloatSpeedCap;
 	public float GroundSpeedCap;
 
-	[Header("Gravity")]
+	[Header("Environment")]
 	public float GravityScale;
 	public float ExtendedJumpGravityScale;
+
+	[Range(0f, 1f)]
+	public float XDrag;
+	[Range(0f, 1f)]
+	public float YDrag;
 
 	[Header("Animation")]
 	public Sprite walkFrame;
@@ -57,23 +58,27 @@ public class PlayerController : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
+		RigidBody.gravityScale = GravityScale;
 	}
 
 	// Update is called once per frame
 	private void Update()
 	{
-		RigidBody.velocity -= new Vector2(0, GravityScale * 9.81f);
-
 		ControllerLogic();
+		ChooseFrame();
+	}
 
+	private void FixedUpdate()
+	{
 		CapSpeed();
+		RigidBody.velocityX *= XDrag;
+		RigidBody.velocityY *= YDrag;
 	}
 
 	public void ControllerLogic()
 	{
 		GroundMovement();
 		OtherMovement();
-		ChooseFrame();
 	}
 
 	public void GroundMovement()
@@ -82,34 +87,26 @@ public class PlayerController : MonoBehaviour
 
 		if (Input.GetKey(StateManager.Left))
 		{
-			RigidBody.velocityX += BaseSpeedForce;
+			RigidBody.AddForce(Vector2.left * BaseSpeedForce);
 			FaceDirection = -1;
 		}
-		else if (RigidBody.velocityX < 0)
-			RigidBody.velocityX -= MathF.Min(BaseSpeedForce * SlowDownMultiplier, RigidBody.velocityX);
-
 		if (Input.GetKey(StateManager.Right))
 		{
-			RigidBody.velocityX -= BaseSpeedForce;
+			RigidBody.AddForce(Vector2.right * BaseSpeedForce);
 			FaceDirection = 1;
 		}
-		else if (RigidBody.velocityX > 0)
-			RigidBody.velocityX += MathF.Min(BaseSpeedForce * SlowDownMultiplier, RigidBody.velocityX);
 
-		if (Input.GetKeyDown(StateManager.Jump)) // If press jump key
+		if (Input.GetKeyDown(StateManager.Jump) && CanJump) // If press jump key and can jump
 		{
-			if (CanJump) // and can jump
-			{
-				IsPreJumping = true; // Start jump animation
-				MoveStateTimer = PreJumpTimerMax; // Jump animation timer
-			}
+			IsPreJumping = true; // Start jump animation
+			MoveStateTimer = PreJumpTimerMax; // Jump animation timer
 		}
 		else if (Input.GetKey(StateManager.Jump) && InAir) // If press jump key
 			IsFloating = true;
 
 		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
 		{
-			RigidBody.velocity += Vector2.up * BaseJumpImpulse; // Boost velocity
+			RigidBody.AddForce(Vector2.up * BaseJumpImpulse, ForceMode2D.Impulse); // Boost velocity
 			IsPreJumping = false; // Stop jump animation
 			IsExtendedJumping = true;
 			MoveStateTimer = JumpTimerMax;
@@ -118,7 +115,7 @@ public class PlayerController : MonoBehaviour
 		if (IsExtendedJumping)
 		{
 			RigidBody.gravityScale = 0.1f;
-			if (MoveStateTimer <= 0 || !Input.GetKey(StateManager.Jump))
+			if (MoveStateTimer <= 0 || !Input.GetKey(StateManager.Jump) || IsGrounded)
 			{
 				IsExtendedJumping = false;
 				RigidBody.gravityScale = GravityScale;
@@ -133,7 +130,7 @@ public class PlayerController : MonoBehaviour
 		if (DashesLeft > 0 && Input.GetKeyDown(StateManager.Dash))
 		{
 			DashesLeft--;
-			RigidBody.velocity += new Vector2(FaceDirection, 0) * BaseDashImpulse;
+			RigidBody.AddForceX(FaceDirection * BaseDashImpulse);
 			MoveStateTimer = ShortDashTimerMax;
 		}
 

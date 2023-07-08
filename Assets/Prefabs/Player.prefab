@@ -96,15 +96,15 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4426056891217766689}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0.1
+  m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: -1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f6c56ef8e3daa2640a15c59c76132652, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -125,7 +125,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: f6c56ef8e3daa2640a15c59c76132652, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -218,13 +218,15 @@ MonoBehaviour:
   ShortDashTimerMax: 0.5
   PreJumpTimerMax: 0.1
   JumpTimerMax: 0.15
-  BaseSpeedForce: 4
-  BaseJumpImpulse: 11
+  BaseSpeedForce: 9
+  BaseJumpImpulse: 15
   BaseDashImpulse: 12
   FloatSpeedCap: -1.5
   GroundSpeedCap: 10
   GravityScale: 3
   ExtendedJumpGravityScale: 0.1
+  XDrag: 0.975
+  YDrag: 1
   walkFrame: {fileID: -8868272330977153355, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   JumpFrames:
   - {fileID: 6349069617109316163, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
