@@ -1,3 +1,5 @@
+// Ignore Spelling: Mult Hitpoints
+
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,9 +13,11 @@ public class PlayerController : MonoBehaviour
 
 	[Header("Movement")]
 	private float MoveStateTimer;
+	private float AirFloatTimer;
 	public float ShortDashTimerMax = 0.5f;
 	public float PreJumpTimerMax = 0.4f;
 	public float JumpTimerMax = 0.4f;
+	public float FloatTimerMax = 3f;
 
 	[Space(SubSpace)]
 	public float BaseSpeedForce;
@@ -35,8 +39,10 @@ public class PlayerController : MonoBehaviour
 
 	[Range(0f, 1f)]
 	public float XDrag;
+
 	[Range(0f, 1f)]
 	public float XDragWhenNotMoving;
+
 	[Range(0f, 1f)]
 	public float YDrag;
 
@@ -51,6 +57,7 @@ public class PlayerController : MonoBehaviour
 	public float MaxImmunity;
 	private int ImmunityFlasher;
 	public bool Immune => ImmunityTimer >= 0;
+
 	public void OnHit(Enemy attacker)
 	{
 		if (Immune)
@@ -60,6 +67,7 @@ public class PlayerController : MonoBehaviour
 		Hitpoints--;
 		ImmunityTimer = MaxImmunity;
 	}
+
 	private void UpdateImmunity()
 	{
 		ImmunityTimer -= Time.deltaTime;
@@ -69,7 +77,6 @@ public class PlayerController : MonoBehaviour
 			SpriteRenderer.color = SpriteRenderer.color = Color.red.WithAlpha(ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
 		else
 			SpriteRenderer.color = SpriteRenderer.color = Color.white;
-
 	}
 
 	private bool IsGrounded;
@@ -108,7 +115,7 @@ public class PlayerController : MonoBehaviour
 	private void FixedUpdate()
 	{
 		CapSpeed();
-		RigidBody.velocityX *= (Input.GetKey(StateManager.Left) || Input.GetKey(StateManager.Right) ? XDrag : XDragWhenNotMoving);
+		RigidBody.velocityX *= (Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving);
 		RigidBody.velocityY *= YDrag;
 	}
 
@@ -123,28 +130,31 @@ public class PlayerController : MonoBehaviour
 	{
 		IsFloating = false;
 
-		if (Input.GetKey(StateManager.Left))
+		if (Input.GetKey(Settings.CurrentSettings.Left))
 		{
 			RigidBody.AddForce(Vector2.left * BaseSpeedForce);
 			FaceDirection = -1;
 		}
-		if (Input.GetKey(StateManager.Right))
+		if (Input.GetKey(Settings.CurrentSettings.Right))
 		{
 			RigidBody.AddForce(Vector2.right * BaseSpeedForce);
 			FaceDirection = 1;
 		}
 
-		if (Input.GetKeyDown(StateManager.Jump) && CanJump) // If press jump key and can jump
+		if (Input.GetKeyDown(Settings.CurrentSettings.Jump) && CanJump) // If press jump key and can jump
 		{
 			IsPreJumping = true; // Start jump animation
 			MoveStateTimer = PreJumpTimerMax; // Jump animation timer
 		}
-		else if (Input.GetKey(StateManager.Jump) && InAir) // If press jump key
+		else if (Input.GetKey(Settings.CurrentSettings.Jump) && InAir) // If press jump key
+		{
 			IsFloating = true;
+			AirFloatTimer -= Time.deltaTime;
+		}
 
 		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
 		{
-			RigidBody.AddForce(Vector2.up * BaseJumpImpulse * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f), ForceMode2D.Impulse); // Boost velocity
+			RigidBody.AddForce((RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f) * BaseJumpImpulse * Vector2.up, ForceMode2D.Impulse); // Boost velocity
 			IsPreJumping = false; // Stop jump animation
 			IsExtendedJumping = true;
 			MoveStateTimer = JumpTimerMax * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
@@ -152,8 +162,9 @@ public class PlayerController : MonoBehaviour
 
 		if (IsExtendedJumping)
 		{
+			AirFloatTimer = FloatTimerMax;
 			RigidBody.gravityScale = 0.1f;
-			if (MoveStateTimer <= 0 || !Input.GetKey(StateManager.Jump) || IsGrounded)
+			if (MoveStateTimer <= 0 || !Input.GetKey(Settings.CurrentSettings.Jump) || IsGrounded)
 			{
 				IsExtendedJumping = false;
 				RigidBody.gravityScale = GravityScale;
@@ -163,7 +174,7 @@ public class PlayerController : MonoBehaviour
 
 	public void OtherMovement()
 	{
-		if (DashesLeft > 0 && Input.GetKeyDown(StateManager.Dash))
+		if (DashesLeft > 0 && Input.GetKeyDown(Settings.CurrentSettings.Dash))
 		{
 			DashesLeft--;
 			RigidBody.AddForceX(FaceDirection * BaseDashImpulse);
@@ -178,7 +189,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (InAir)
 		{
-			CapFall(IsFloating ? FloatSpeedCap : FallSpeedCap);
+			CapFall(IsFloating && AirFloatTimer <= 0 ? FloatSpeedCap : FallSpeedCap);
 			CapMovement(AirSpeedCap);
 		}
 		else if (IsGrounded)
@@ -219,20 +230,19 @@ public class PlayerController : MonoBehaviour
 	private void SetCurrentSprite(Sprite value)
 		=> SpriteRenderer.sprite = value;
 
-	public void OnCollisionEnter2D(Collision2D collision)
-	{
-	}
-
 	public void OnCollisionStay2D(Collision2D collision)
 	{
-		if (collision.gameObject.TryGetComponent<Enemy>(out Enemy enemy))
+		if (collision.gameObject.TryGetComponent(out Enemy enemy))
 		{
 			if (enemy.CollisionTypes == EnemyCollisionTypes.Hurt)
 				OnHit(enemy);
 		}
-		else
+		else if (CheckIsGround(collision))
 			IsGrounded = true;
 	}
+
+	public bool CheckIsGround(Collision2D collision)
+		=> collision.contacts.Length > 0 && Vector2.Dot(collision.contacts[0].normal, Vector2.up) > 0.5;
 
 	public void OnCollisionExit2D(Collision2D collision)
 	{
