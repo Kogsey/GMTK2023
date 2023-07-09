@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
-using static UnityEditor.PlayerSettings;
 
 public class GUI : MonoBehaviour
 {
@@ -17,7 +15,7 @@ public class GUI : MonoBehaviour
 	public Transform CogPrefab;
 	public Camera Camera;
 	public PixelPerfectCamera PixelPerfectCamera;
-	public Vector2 ScreenTopLeft => Camera.ViewportToWorldPoint(new Vector3(0f, 1f));
+	public Vector2 ScreenTopLeft => Camera.ScreenToWorldPoint(new Vector3(0f, Screen.height));
 
 	// Start is called before the first frame update
 	private void Start()

@@ -64,10 +64,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+    x: 0.0010582011
+    y: 0.002074689
+    width: 0.9968254
+    height: 0.9958507
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tracked: {fileID: 0}
-  Offset: {x: 0, y: 0, z: -10}
+  Offset: {x: 0, y: 2.5, z: -10}
 --- !u!1 &5304426546437950559
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpacingXEach: 1.25
-  SpacingInitial: {x: 0.75, y: -0.5}
+  SpacingInitial: {x: 0.75, y: -0.75}
   DegreesPerFrame: 10
   Cogs: []
   CogPrefab: {fileID: 623028943011932058, guid: 86fee17f101b655478ad7d1dee9dd772, type: 3}
