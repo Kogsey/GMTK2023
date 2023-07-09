@@ -55,7 +55,7 @@ public class StateManager : MonoBehaviour
 			instance = this;
 		else
 		{
-			Destroy(this);
+			DestroyImmediate(this);
 			return;
 		}
 		DontDestroyOnLoad(gameObject);

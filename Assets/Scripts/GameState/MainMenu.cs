@@ -8,9 +8,10 @@ public class MainMenu : MonoBehaviour
 	public TextMeshProUGUI MusicText;
 
 	public void ButtonPlayGame()
-	{
-		SceneManager.LoadScene(StateManager.GameScreen);
-	}
+		=> SceneManager.LoadScene(StateManager.GameScreen);
+
+	public void ButtonOpenMenu()
+		=> SceneManager.LoadScene(StateManager.MainMenuScreen);
 
 	public void ButtonToggleSFX()
 	{

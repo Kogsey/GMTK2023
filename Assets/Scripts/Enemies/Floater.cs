@@ -39,9 +39,11 @@ public class Floater : Enemy
 	private readonly float SpinCount = 10f;
 	private readonly float SpinSpeedRadians = Mathf.PI * 5;
 	private float Spin;
+
 	public override void OnHitPlayer()
-		=>	StartCoroutine(SpinOutAnim());
-	IEnumerator SpinOutAnim()
+		=> StartCoroutine(SpinOutAnim());
+
+	private IEnumerator SpinOutAnim()
 	{
 		RigidBody.constraints &= RigidbodyConstraints2D.FreezeRotation;
 

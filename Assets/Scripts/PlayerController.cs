@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
 	public void ControllerLogic()
 	{
 		GroundMovement();
-		DashMovement();
+		//DashMovement();
 
 		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
 		AirFloatTimer -= Time.deltaTime;
