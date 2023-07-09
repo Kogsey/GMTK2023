@@ -2688,8 +2688,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2772,7 +2772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemInfo:
   - "Once upon a time there lived a princess.\r\nShe was sweet and fair, and like
-    with most princess\u2026 she was kidnapped! \r\n\r\nNow you know how this story
+    with most princesses\u2026 she was kidnapped! \r\n\r\nNow you know how this story
     goes. \r\nHer dashing young friend set out on his journey of adventure and daring
     to rescue our princess.\n\r\nHe discovered her whereabouts in an abandoned warehouse
     that had been taken over by the evil Dr. Cogsworth.\r\nBut upon reaching the
@@ -3428,11 +3428,11 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.1
+  m_fontSize: 50
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 0
+  m_fontSizeMin: 50
   m_fontSizeMax: 1000
   m_fontStyle: 1
   m_HorizontalAlignment: 2
@@ -3444,7 +3444,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
