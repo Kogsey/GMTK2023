@@ -1,4 +1,4 @@
-// Ignore Spelling: Mult Hitpoints
+// Ignore Spelling: Mult Hitpoints Collider
 
 using Unity.VisualScripting;
 using UnityEngine;
@@ -103,30 +103,34 @@ public class PlayerController : MonoBehaviour
 		RigidBody.gravityScale = GravityScale;
 	}
 
+	private void FixedUpdate()
+	{
+		RigidBody.velocityX *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
+		RigidBody.velocityY *= YDrag;
+		CapSpeed();
+
+		IsGrounded = false;
+	}
+
 	// Update is called once per frame
 	private void Update()
 	{
 		ControllerLogic();
 		ChooseFrame();
-
 		UpdateImmunity();
-	}
-
-	private void FixedUpdate()
-	{
-		CapSpeed();
-		RigidBody.velocityX *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
-		RigidBody.velocityY *= YDrag;
 	}
 
 	public void ControllerLogic()
 	{
 		GroundMovement();
-		OtherMovement();
+		DashMovement();
 
 		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
 		AirFloatTimer -= Time.deltaTime;
 	}
+
+	public void RunInFaceDirection()
+		=> RigidBody.AddForceX(FaceDirection * BaseSpeedForce);
 
 	public void GroundMovement()
 	{
@@ -134,13 +138,13 @@ public class PlayerController : MonoBehaviour
 
 		if (Input.GetKey(Settings.CurrentSettings.Left))
 		{
-			RigidBody.AddForce(Vector2.left * BaseSpeedForce);
 			FaceDirection = -1;
+			RunInFaceDirection();
 		}
 		if (Input.GetKey(Settings.CurrentSettings.Right))
 		{
-			RigidBody.AddForce(Vector2.right * BaseSpeedForce);
 			FaceDirection = 1;
+			RunInFaceDirection();
 		}
 
 		if (Input.GetKeyDown(Settings.CurrentSettings.Jump) && CanJump) // If press jump key and can jump
@@ -151,9 +155,14 @@ public class PlayerController : MonoBehaviour
 		else if (Input.GetKey(Settings.CurrentSettings.Jump) && InAir && AirFloatTimer > 0) // If press jump key
 			IsFloating = true;
 
+		JumpLogic();
+	}
+
+	public void JumpLogic()
+	{
 		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
 		{
-			RigidBody.AddForce((RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f) * BaseJumpImpulse * Vector2.up, ForceMode2D.Impulse); // Boost velocity
+			RigidBody.AddForceY((RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f) * BaseJumpImpulse, ForceMode2D.Impulse); // Boost velocity
 			IsPreJumping = false; // Stop jump animation
 			IsExtendedJumping = true;
 			MoveStateTimer = JumpTimerMax * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
@@ -171,7 +180,7 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	public void OtherMovement()
+	public void DashMovement()
 	{
 		if (DashesLeft > 0 && Input.GetKeyDown(Settings.CurrentSettings.Dash))
 		{
@@ -241,10 +250,5 @@ public class PlayerController : MonoBehaviour
 	}
 
 	public bool CheckIsGround(Collision2D collision)
-		=> collision.contacts.Length > 0 && Vector2.Dot(collision.contacts[0].normal, Vector2.up) > 0.5;
-
-	public void OnCollisionExit2D(Collision2D collision)
-	{
-		IsGrounded = false;
-	}
+		=> collision.contactCount > 0 && Vector2.Dot(collision.GetContact(0).normal, Vector2.up) > 0.5;
 }
