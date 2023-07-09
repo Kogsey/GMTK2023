@@ -1,37 +1,19 @@
 fileFormatVersion: 2
-guid: a7a93648a8f7f224e9bc1cb23ea96dfb
+guid: 656e3155871e52f43b5f5d7bbb038240
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8868272330977153355
-    second: PlayerSprite_0
+      213: -6791077902091873405
+    second: SteamSprites_0
   - first:
-      213: 6349069617109316163
-    second: PlayerSprite_1
+      213: -6265256403170163524
+    second: SteamSprites_1
   - first:
-      213: 1569261468809307932
-    second: PlayerSprite_2
+      213: 6060582523454469381
+    second: SteamSprites_2
   - first:
-      213: 8916896056068427944
-    second: PlayerSprite_3
-  - first:
-      213: -6386507142686429062
-    second: PlayerSprite_4
-  - first:
-      213: -8434965753784240484
-    second: PlayerSprite_5
-  - first:
-      213: -3958506783679606655
-    second: PlayerSprite_6
-  - first:
-      213: -5367375639046076343
-    second: PlayerSprite_7
-  - first:
-      213: -4844168726572069635
-    second: PlayerSprite_8
-  - first:
-      213: 8418022784724838117
-    second: PlayerSprite_9
+      213: 6314262919574803930
+    second: SteamSprites_3
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -149,13 +131,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PlayerSprite_0
+      name: SteamSprites_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 16
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,20 +145,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5be6ea41d419de480800000000000000
-      internalID: -8868272330977153355
+      spriteID: 3831fc3f0ae31c1a0800000000000000
+      internalID: -6791077902091873405
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PlayerSprite_1
+      name: SteamSprites_1
       rect:
         serializedVersion: 2
         x: 16
         y: 0
         width: 16
-        height: 16
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -184,20 +166,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 342b60e8d2d6c1850800000000000000
-      internalID: 6349069617109316163
+      spriteID: cb40d4efe765d09a0800000000000000
+      internalID: -6265256403170163524
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PlayerSprite_2
+      name: SteamSprites_2
       rect:
         serializedVersion: 2
         x: 32
         y: 0
         width: 16
-        height: 16
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -205,20 +187,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c172618ddf227c510800000000000000
-      internalID: 1569261468809307932
+      spriteID: 505b17ad1b38b1450800000000000000
+      internalID: 6060582523454469381
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PlayerSprite_3
+      name: SteamSprites_3
       rect:
         serializedVersion: 2
         x: 48
         y: 0
         width: 16
-        height: 16
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -226,29 +208,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8a05a0128bd2fbb70800000000000000
-      internalID: 8916896056068427944
+      spriteID: ad55da3cba4c0a750800000000000000
+      internalID: 6314262919574803930
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PlayerSprite_4
+      name: SteamSprites_4
       rect:
         serializedVersion: 2
         x: 64
         y: 0
         width: 16
-        height: 16
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a703ea447919e57a0800000000000000
-      internalID: -6386507142686429062
+      spriteID: c00206ab2d6a8b34a977b6da81e09fc2
+      internalID: -761415580
       vertices: []
       indices: 
       edges: []
@@ -256,7 +238,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 261b299c0cc46784187e8cc6393400e7
+    spriteID: 145a14492b8c37b42a9fa62d23a76a53
     internalID: 0
     vertices: []
     indices: 
@@ -264,11 +246,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      PlayerSprite_0: -8868272330977153355
-      PlayerSprite_1: 6349069617109316163
-      PlayerSprite_2: 1569261468809307932
-      PlayerSprite_3: 8916896056068427944
-      PlayerSprite_4: -6386507142686429062
+      SteamSprites_0: -6791077902091873405
+      SteamSprites_1: -6265256403170163524
+      SteamSprites_2: 6060582523454469381
+      SteamSprites_3: 6314262919574803930
+      SteamSprites_4: -761415580
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

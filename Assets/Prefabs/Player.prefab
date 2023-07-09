@@ -76,7 +76,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -8868272330977153355, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -222,14 +222,20 @@ MonoBehaviour:
   BaseJumpImpulse: 15
   BaseDashImpulse: 12
   FloatSpeedCap: -1.5
-  GroundSpeedCap: 10
+  GroundSpeedCap: 6
+  HighJumpMinSpeed: 0.15
+  HighJumpForceMult: 1.2
+  HighJumpTimeMult: 1
   GravityScale: 3
   ExtendedJumpGravityScale: 0.1
   XDrag: 0.975
-  YDrag: 1
+  XDragWhenNotMoving: 0.8
+  YDrag: 0.999
   walkFrame: {fileID: -8868272330977153355, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   JumpFrames:
   - {fileID: 6349069617109316163, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   - {fileID: 1569261468809307932, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   FloatFrame: {fileID: 8916896056068427944, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   FallFrame: {fileID: -6386507142686429062, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
+  Hitpoints: 3
+  MaxImmunity: 1

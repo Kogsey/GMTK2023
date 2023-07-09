@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -23,12 +24,19 @@ public class PlayerController : MonoBehaviour
 	public float FloatSpeedCap;
 	public float GroundSpeedCap;
 
+	[Space(SubSpace)]
+	public float HighJumpMinSpeed;
+	public float HighJumpForceMult;
+	public float HighJumpTimeMult;
+
 	[Header("Environment")]
 	public float GravityScale;
 	public float ExtendedJumpGravityScale;
 
 	[Range(0f, 1f)]
 	public float XDrag;
+	[Range(0f, 1f)]
+	public float XDragWhenNotMoving;
 	[Range(0f, 1f)]
 	public float YDrag;
 
@@ -37,6 +45,32 @@ public class PlayerController : MonoBehaviour
 	public Sprite[] JumpFrames;
 	public Sprite FloatFrame;
 	public Sprite FallFrame;
+
+	[Header("Health")]
+	public int Hitpoints;
+	public float MaxImmunity;
+	private int ImmunityFlasher;
+	public bool Immune => ImmunityTimer >= 0;
+	public void OnHit(Enemy attacker)
+	{
+		if (Immune)
+			return;
+
+		attacker.OnHitPlayer();
+		Hitpoints--;
+		ImmunityTimer = MaxImmunity;
+	}
+	private void UpdateImmunity()
+	{
+		ImmunityTimer -= Time.deltaTime;
+		ImmunityFlasher++;
+
+		if (Immune)
+			SpriteRenderer.color = SpriteRenderer.color = Color.red.WithAlpha(ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
+		else
+			SpriteRenderer.color = SpriteRenderer.color = Color.white;
+
+	}
 
 	private bool IsGrounded;
 	private bool InAir => !IsGrounded;
@@ -54,6 +88,7 @@ public class PlayerController : MonoBehaviour
 	private bool IsFloating;
 	private int DashesLeft;
 	private readonly int maxDashes = 1;
+	private float ImmunityTimer;
 
 	// Start is called before the first frame update
 	private void Start()
@@ -66,12 +101,14 @@ public class PlayerController : MonoBehaviour
 	{
 		ControllerLogic();
 		ChooseFrame();
+
+		UpdateImmunity();
 	}
 
 	private void FixedUpdate()
 	{
 		CapSpeed();
-		RigidBody.velocityX *= XDrag;
+		RigidBody.velocityX *= (Input.GetKey(StateManager.Left) || Input.GetKey(StateManager.Right) ? XDrag : XDragWhenNotMoving);
 		RigidBody.velocityY *= YDrag;
 	}
 
@@ -79,6 +116,7 @@ public class PlayerController : MonoBehaviour
 	{
 		GroundMovement();
 		OtherMovement();
+		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
 	}
 
 	public void GroundMovement()
@@ -106,10 +144,10 @@ public class PlayerController : MonoBehaviour
 
 		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
 		{
-			RigidBody.AddForce(Vector2.up * BaseJumpImpulse, ForceMode2D.Impulse); // Boost velocity
+			RigidBody.AddForce(Vector2.up * BaseJumpImpulse * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f), ForceMode2D.Impulse); // Boost velocity
 			IsPreJumping = false; // Stop jump animation
 			IsExtendedJumping = true;
-			MoveStateTimer = JumpTimerMax;
+			MoveStateTimer = JumpTimerMax * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
 		}
 
 		if (IsExtendedJumping)
@@ -121,8 +159,6 @@ public class PlayerController : MonoBehaviour
 				RigidBody.gravityScale = GravityScale;
 			}
 		}
-
-		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
 	}
 
 	public void OtherMovement()
@@ -189,7 +225,13 @@ public class PlayerController : MonoBehaviour
 
 	public void OnCollisionStay2D(Collision2D collision)
 	{
-		IsGrounded = true;
+		if (collision.gameObject.TryGetComponent<Enemy>(out Enemy enemy))
+		{
+			if (enemy.CollisionTypes == EnemyCollisionTypes.Hurt)
+				OnHit(enemy);
+		}
+		else
+			IsGrounded = true;
 	}
 
 	public void OnCollisionExit2D(Collision2D collision)
