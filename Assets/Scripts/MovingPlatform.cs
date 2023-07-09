@@ -12,7 +12,7 @@ public class MovingPlatform : MonoBehaviour
 	public float MoveSpeed;
 
 	private Vector2 HomePositon;
-	private Vector2 VectorAngle => new(Mathf.Cos(PathAngle), Mathf.Sin(PathAngle));
+	private Vector2 VectorAngle => new(Mathf.Cos(PathAngle * Mathf.Deg2Rad), Mathf.Sin(PathAngle * Mathf.Deg2Rad));
 	private float StartOffsetChecked => Mathf.Min(StartOffsetLength, PathLength);
 	private float DistanceMoved;
 	private float DampedDistance => Mathf.Max(1f, PathLength / 2);

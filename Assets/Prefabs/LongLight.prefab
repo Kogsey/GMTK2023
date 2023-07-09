@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3462956616635568416}
   - component: {fileID: 7462148138103813505}
   m_Layer: 0
-  m_Name: Lamp
+  m_Name: LongLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3462956616635568416
 MonoBehaviour:
@@ -72,7 +72,7 @@ MonoBehaviour:
     m_Center: {x: 0, y: -0.00000011920929, z: 0}
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 44.08162
-  m_PointLightOuterAngle: 172.65305
+  m_PointLightOuterAngle: 285.15305
   m_PointLightInnerRadius: 0
   m_PointLightOuterRadius: 18.3
   m_ShapeLightParametricSides: 5
@@ -126,7 +126,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2792259903310515781, guid: 8d4f3f2781ab70145a6539a5bc508b55, type: 3}
+  m_Sprite: {fileID: -9162818248781561700, guid: 49c24049d8886bd4196c2a04ab48db58, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 1
