@@ -15,10 +15,12 @@ public class PlayerController : MonoBehaviour
 	[Header("Movement")]
 	private float MoveStateTimer;
 	private float AirFloatTimer;
+	private float CoyoteTimer;
 	public float ShortDashTimerMax = 0.5f;
 	public float PreJumpTimerMax = 0.4f;
 	public float JumpTimerMax = 0.4f;
 	public float FloatTimerMax = 3f;
+	public float CoyoteTimeMax = 0.1f;
 
 	[Space(SubSpace)]
 	public float BaseSpeedForce;
@@ -85,7 +87,7 @@ public class PlayerController : MonoBehaviour
 			SpriteRenderer.color = SpriteRenderer.color = Color.white;
 	}
 
-	private bool IsGrounded;
+	private bool IsGrounded { get => CoyoteTimer >= 0; }
 	private bool InAir => !IsGrounded;
 	private bool CanJump => IsGrounded;
 	private float FallSpeedCap => 10 * FloatSpeedCap;
@@ -115,7 +117,7 @@ public class PlayerController : MonoBehaviour
 		RigidBody.velocityY *= YDrag;
 		CapSpeed();
 
-		IsGrounded = false;
+		CoyoteTimer -= Time.deltaTime;
 	}
 
 	// Update is called once per frame
@@ -252,7 +254,7 @@ public class PlayerController : MonoBehaviour
 				OnHit(enemy);
 		}
 		else if (CheckIsGround(collision))
-			IsGrounded = true;
+			CoyoteTimer = CoyoteTimeMax;
 	}
 
 	public bool CheckIsGround(Collision2D collision)
