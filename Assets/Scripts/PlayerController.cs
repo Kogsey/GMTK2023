@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour
 		ImmunityFlasher++;
 
 		if (Immune)
-			SpriteRenderer.color = SpriteRenderer.color = Color.red.WithAlpha(ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
+			SpriteRenderer.color = SpriteRenderer.color = new Color(1, 0, 0, ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
 		else
 			SpriteRenderer.color = SpriteRenderer.color = Color.white;
 	}
