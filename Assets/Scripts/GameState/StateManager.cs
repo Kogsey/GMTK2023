@@ -68,6 +68,11 @@ public class StateManager : MonoBehaviour
 		SceneManager.LoadScene(MainMenuScreen);
 	}
 
+	public static void GameOver()
+	{
+		Debug.Log("Game Over");
+	}
+
 	public static void QuitGame()
 	{
 		SaveSystem.Save();

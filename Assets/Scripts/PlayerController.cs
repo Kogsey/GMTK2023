@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 	[Header("Base")]
 	public Rigidbody2D RigidBody;
 	public SpriteRenderer SpriteRenderer;
+	public GUI GUI;
 
 	[Header("Movement")]
 	private float MoveStateTimer;
@@ -53,6 +54,7 @@ public class PlayerController : MonoBehaviour
 	public Sprite FallFrame;
 
 	[Header("Health")]
+	public const int MaxHitPoints = 3;
 	public int Hitpoints;
 	public float MaxImmunity;
 	private int ImmunityFlasher;
@@ -64,8 +66,12 @@ public class PlayerController : MonoBehaviour
 			return;
 
 		attacker.OnHitPlayer();
+		GUI.RemoveCog();
 		Hitpoints--;
 		ImmunityTimer = MaxImmunity;
+
+		if (Hitpoints <= 0)
+			StateManager.GameOver();
 	}
 
 	private void UpdateImmunity()
