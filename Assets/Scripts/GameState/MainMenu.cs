@@ -23,7 +23,7 @@ public class MainMenu : MonoBehaviour
 		=> Settings.CurrentSettings.CopyControlsFrom(Settings.CelesteStyleSettings);
 
 	public void SetKeyBindingDefault()
-	=> Settings.CurrentSettings.CopyControlsFrom(Settings.CelesteStyleSettings);
+		=> Settings.CurrentSettings.CopyControlsFrom(Settings.DefaultSettings);
 
 	public static KeyCode? GetAnyKeyDown()
 	{

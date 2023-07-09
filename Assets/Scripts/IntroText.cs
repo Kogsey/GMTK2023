@@ -24,13 +24,16 @@ public class IntroText : MonoBehaviour
 	{
 		for (int i = 0; i < itemInfo[currentlyDisplayingText].Length + 1; i++)
 		{
-			if (Input.GetKeyDown(Settings.CurrentSettings.Jump) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
-				PlayButton.SetActive(true);
-
 			itemInfoText.text = itemInfo[currentlyDisplayingText][..i];
 			yield return new WaitForSeconds(textSpeed);
 		}
 
 		PlayButton.SetActive(true);
 	}
+
+	private void Update()
+	{
+        if (Input.GetKeyDown(Settings.CurrentSettings.Jump) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
+            PlayButton.SetActive(true);
+    }
 }

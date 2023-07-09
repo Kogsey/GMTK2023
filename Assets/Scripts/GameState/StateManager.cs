@@ -47,7 +47,7 @@ public class StateManager : MonoBehaviour
 
 	public GameObject MusicManagerPrefab;
 
-	private StateManager instance;
+	private static StateManager instance;
 
 	private void Awake()
 	{
@@ -60,7 +60,7 @@ public class StateManager : MonoBehaviour
 		}
 		DontDestroyOnLoad(gameObject);
 		Instantiate(MusicManagerPrefab);
-		Settings.CurrentSettings = SaveSystem.Load();
+		//Settings.CurrentSettings = SaveSystem.Load();
 	}
 
 	public void Update()
@@ -87,7 +87,7 @@ public class StateManager : MonoBehaviour
 
 	public static void QuitGame()
 	{
-		SaveSystem.Save();
+		//SaveSystem.Save();
 		Application.Quit();
 	}
 }
