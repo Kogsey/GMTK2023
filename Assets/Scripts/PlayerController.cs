@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
 	[Header("Movement")]
 	private float MoveStateTimer;
 	private float AirFloatTimer;
-	private float CoyoteTimer;
+	public float CoyoteTimer;
 	public float ShortDashTimerMax = 0.5f;
 	public float PreJumpTimerMax = 0.4f;
 	public float JumpTimerMax = 0.4f;
@@ -253,10 +253,10 @@ public class PlayerController : MonoBehaviour
 			if (enemy.CollisionTypes == EnemyCollisionTypes.Hurt)
 				OnHit(enemy);
 		}
-		else if (CheckIsGround(collision))
+		else if (IsUpFacing(collision))
 			CoyoteTimer = CoyoteTimeMax;
 	}
 
-	public bool CheckIsGround(Collision2D collision)
+	public bool IsUpFacing(Collision2D collision)
 		=> collision.contactCount > 0 && Vector2.Dot(collision.GetContact(0).normal, Vector2.up) > 0.5;
 }
