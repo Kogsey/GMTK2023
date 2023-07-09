@@ -42,11 +42,22 @@ public class StateManager : MonoBehaviour
 {
 	public const string MainMenuScreen = "Menu";
 	public const string GameScreen = "Primary Level";
+	public const string WinScreen = "Win Game";
+	public const string LoseScreen = "Lose Game";
 
 	public GameObject MusicManagerPrefab;
 
+	private StateManager instance;
+
 	private void Awake()
 	{
+		if (instance == null)
+			instance = this;
+		else
+		{
+			Destroy(this);
+			return;
+		}
 		DontDestroyOnLoad(gameObject);
 		Instantiate(MusicManagerPrefab);
 		Settings.CurrentSettings = SaveSystem.Load();
@@ -69,9 +80,10 @@ public class StateManager : MonoBehaviour
 	}
 
 	public static void GameOver()
-	{
-		Debug.Log("Game Over");
-	}
+		=> SceneManager.LoadScene(LoseScreen);
+
+	public static void WinGame()
+		=> SceneManager.LoadScene(WinScreen);
 
 	public static void QuitGame()
 	{
