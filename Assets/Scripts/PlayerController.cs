@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour
 	private void FixedUpdate()
 	{
 		CapSpeed();
-		RigidBody.velocityX *= (Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving);
+		RigidBody.velocityX *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
 		RigidBody.velocityY *= YDrag;
 	}
 
@@ -123,7 +123,9 @@ public class PlayerController : MonoBehaviour
 	{
 		GroundMovement();
 		OtherMovement();
+
 		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
+		AirFloatTimer -= Time.deltaTime;
 	}
 
 	public void GroundMovement()
@@ -146,11 +148,8 @@ public class PlayerController : MonoBehaviour
 			IsPreJumping = true; // Start jump animation
 			MoveStateTimer = PreJumpTimerMax; // Jump animation timer
 		}
-		else if (Input.GetKey(Settings.CurrentSettings.Jump) && InAir) // If press jump key
-		{
+		else if (Input.GetKey(Settings.CurrentSettings.Jump) && InAir && AirFloatTimer > 0) // If press jump key
 			IsFloating = true;
-			AirFloatTimer -= Time.deltaTime;
-		}
 
 		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
 		{
@@ -189,7 +188,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (InAir)
 		{
-			CapFall(IsFloating && AirFloatTimer <= 0 ? FloatSpeedCap : FallSpeedCap);
+			CapFall(IsFloating ? FloatSpeedCap : FallSpeedCap);
 			CapMovement(AirSpeedCap);
 		}
 		else if (IsGrounded)
