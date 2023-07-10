@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering.Universal;
+using UnityEngine.U2D;
 
 public class GUI : MonoBehaviour
 {
 	public float SpacingXEach;
 	public Vector2 SpacingInitial;
-	public float DegreesPerFrame;
+	public float ExitDegreesPerSecond;
 	private const float CogRadius = 0.5f;
 	public int StartCogCount => PlayerController.MaxHitPoints;
 
@@ -43,9 +43,9 @@ public class GUI : MonoBehaviour
 		float timer = 10f;
 		while (timer >= 0)
 		{
-			cog.Rotate(new Vector3(0, 0, DegreesPerFrame));
-			cog.transform.position -= new Vector3(2 * Mathf.PI * CogRadius * (DegreesPerFrame / 360), 0, 0);
-			timer -= Time.deltaTime;
+			cog.Rotate(new Vector3(0, 0, ExitDegreesPerSecond * Time.unscaledDeltaTime));
+			cog.transform.position -= new Vector3(2 * Mathf.PI * CogRadius * (ExitDegreesPerSecond * Time.unscaledDeltaTime / 360), 0, 0);
+			timer -= Time.unscaledDeltaTime;
 			yield return null;
 		}
 

@@ -33,7 +33,7 @@ public class IntroText : MonoBehaviour
 
 	private void Update()
 	{
-        if (Input.GetKeyDown(Settings.CurrentSettings.Jump) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
-            PlayButton.SetActive(true);
-    }
+		if (Input.GetKeyDown(Settings.CurrentSettings.Jump) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
+			PlayButton.SetActive(true);
+	}
 }

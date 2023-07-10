@@ -22,8 +22,8 @@ public class MovingPlatform : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
-		//RigidBody.gravityScale = 0f;
-		//RigidBody.constraints = RigidbodyConstraints2D.FreezeRotation;
+		//Velocity.gravityScale = 0f;
+		//Velocity.constraints = RigidbodyConstraints2D.FreezeRotation;
 		HomePositon = transform.position;
 		DistanceMoved = StartOffsetChecked;
 

@@ -4,33 +4,31 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-	public const float SubSpace = 10f;
-
 	[Header("Base")]
-	public Rigidbody2D RigidBody;
+	public PhysicsVelocity2D Velocity;
 	public SpriteRenderer SpriteRenderer;
 	public GUI GUI;
 
 	[Header("Movement")]
 	private float MoveStateTimer;
-	private float AirFloatTimer;
+	private float FloatTimeLeft;
 	public float CoyoteTimer;
 	public float ShortDashTimerMax = 0.5f;
 	public float PreJumpTimerMax = 0.4f;
-	public float JumpTimerMax = 0.4f;
+	public float ExtendedJumpTimerMax = 0.4f;
 	public float FloatTimerMax = 3f;
 	public float CoyoteTimeMax = 0.1f;
 
-	[Space(SubSpace)]
+	[Space]
 	public float BaseSpeedForce;
 	public float BaseJumpImpulse;
 	public float BaseDashImpulse;
 
-	[Space(SubSpace)]
+	[Space]
 	public float FloatSpeedCap;
 	public float GroundSpeedCap;
 
-	[Space(SubSpace)]
+	[Space]
 	public float HighJumpMinSpeed;
 	public float HighJumpForceMult;
 	public float HighJumpTimeMult;
@@ -67,7 +65,8 @@ public class PlayerController : MonoBehaviour
 			return;
 
 		attacker.OnHitPlayer();
-		GUI.RemoveCog();
+		if (GUI != null)
+			GUI.RemoveCog();
 		Hitpoints--;
 		ImmunityTimer = MaxImmunity;
 
@@ -81,14 +80,12 @@ public class PlayerController : MonoBehaviour
 		ImmunityFlasher++;
 
 		if (Immune)
-			SpriteRenderer.color = SpriteRenderer.color = new Color(1, 0, 0, ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
+			SpriteRenderer.color = new Color(1, 0, 0, ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
 		else
-			SpriteRenderer.color = SpriteRenderer.color = Color.white;
+			SpriteRenderer.color = Color.white;
 	}
 
-	private bool IsGrounded { get => CoyoteTimer >= 0; }
-	private bool InAir => !IsGrounded;
-	private bool CanJump => IsGrounded;
+	private bool OnGround { get => CoyoteTimer >= 0; }
 	private float FallSpeedCap => 10 * FloatSpeedCap;
 	private float AirSpeedCap => 1.5f * GroundSpeedCap;
 
@@ -97,9 +94,6 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	private int FaceDirection { get => SpriteRenderer.flipX ? 1 : -1; set => SpriteRenderer.flipX = value == 1; }
 
-	private bool IsPreJumping;
-	private bool IsExtendedJumping;
-	private bool IsFloating;
 	private int DashesLeft;
 	private readonly int maxDashes = 1;
 	private float ImmunityTimer;
@@ -107,88 +101,150 @@ public class PlayerController : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
-		RigidBody.gravityScale = GravityScale;
-	}
-
-	private void FixedUpdate()
-	{
-		RigidBody.velocity -= AdjacentItemVelocity;
-		RigidBody.velocityX *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
-		RigidBody.velocityY *= YDrag;
-		RigidBody.velocity += AdjacentItemVelocity;
-		CapSpeed();
-
-		CoyoteTimer -= Time.deltaTime;
-		AdjacentItemVelocity = Vector2.zero;
+		Velocity.Gravity = GravityScale * 9.81f;
 	}
 
 	public Vector2 AdjacentItemVelocity;
 
+	private void FixedUpdate()
+		=> GetComponent<Rigidbody2D>().AddForce((Vector2)Velocity / Velocity.DeltaTime);
+
 	// Update is called once per frame
 	private void Update()
 	{
-		ControllerLogic();
-		ChooseFrame();
+		UpdateTimers();
+
+		Movement();
+
 		UpdateImmunity();
+		FinalPhysicsUpdate();
 	}
 
-	public void ControllerLogic()
+	// OnPreRender is called before a camera starts rendering the scene
+	private void OnPreRender()
 	{
-		GroundMovement();
+		ChooseFrame();
+	}
+
+	public void UpdateTimers()
+	{
+		MoveStateTimer -= Velocity.DeltaTime; // Important to use internalVelocity's delta time
+		FloatTimeLeft -= Velocity.DeltaTime;
+		CoyoteTimer -= Velocity.DeltaTime;
+		JumpStateTimer -= Velocity.DeltaTime;
+	}
+
+	public void FinalPhysicsUpdate()
+	{
+		Velocity.x *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
+		Velocity.y *= YDrag;
+
+		CapSpeed();
+		if (OnGround)
+			Velocity.OnGround();
+		Velocity.Step();
+		//Velocity.StepThenApplyTo(transform);
+	}
+
+	public void Movement()
+	{
+		GeneralMovement();
+		JumpMovement();
 		//DashMovement();
-
-		MoveStateTimer -= Time.deltaTime; // Decrement timer by frame time
-		AirFloatTimer -= Time.deltaTime;
 	}
 
-	public void RunInFaceDirection()
-		=> RigidBody.AddForceX(FaceDirection * BaseSpeedForce);
-
-	public void GroundMovement()
+	public void GeneralMovement()
 	{
-		IsFloating = false;
-
-		if (Input.GetKey(Settings.CurrentSettings.Left))
+		if (Input.GetKey(Settings.CurrentSettings.Left) ^ Input.GetKey(Settings.CurrentSettings.Right)) //Exclusive or so do nothing if both held
 		{
-			FaceDirection = -1;
-			RunInFaceDirection();
+			if (Input.GetKey(Settings.CurrentSettings.Left))
+				MoveInDirection(-1);
+			else
+				MoveInDirection(1);
 		}
-		if (Input.GetKey(Settings.CurrentSettings.Right))
-		{
-			FaceDirection = 1;
-			RunInFaceDirection();
-		}
-
-		if (Input.GetKeyDown(Settings.CurrentSettings.Jump) && CanJump) // If press jump key and can jump
-		{
-			IsPreJumping = true; // Start jump animation
-			MoveStateTimer = PreJumpTimerMax; // Jump animation timer
-		}
-		else if (Input.GetKey(Settings.CurrentSettings.Jump) && InAir && AirFloatTimer > 0) // If press jump key
-			IsFloating = true;
-
-		JumpLogic();
 	}
 
-	public void JumpLogic()
+	public void MoveInDirection(int direction)
 	{
-		if (IsPreJumping && MoveStateTimer <= 0) // If jump animation is over
-		{
-			RigidBody.AddForceY((RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpForceMult : 1f) * BaseJumpImpulse, ForceMode2D.Impulse); // Boost velocity
-			IsPreJumping = false; // Stop jump animation
-			IsExtendedJumping = true;
-			MoveStateTimer = JumpTimerMax * (RigidBody.velocity.magnitude > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
-		}
+		FaceDirection = direction;
+		Velocity += BaseSpeedForce * FaceDirection * Vector2.right;
+	}
 
-		if (IsExtendedJumping)
+	private enum Jump
+	{
+		None, // Moves to PreJump or Floating
+		PreJump, // Moves to HighJump
+		HighJump, // Moves to none
+		Floating, // Moves to none
+	}
+
+	private Jump _playerJumpState = Jump.None;
+
+	private Jump JumpState
+	{
+		get => _playerJumpState;
+		set
 		{
-			AirFloatTimer = FloatTimerMax;
-			RigidBody.gravityScale = 0.1f;
-			if (MoveStateTimer <= 0 || !Input.GetKey(Settings.CurrentSettings.Jump) || IsGrounded)
+			switch (value)
 			{
-				IsExtendedJumping = false;
-				RigidBody.gravityScale = GravityScale;
+				case Jump.None:
+					JumpStateTimer = 0;
+					break;
+
+				case Jump.PreJump:
+					JumpStateTimer = PreJumpTimerMax;
+					break;
+
+				case Jump.HighJump:
+					JumpStateTimer = ExtendedJumpTimerMax * (Mathf.Abs(Velocity.x) > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
+					break;
 			}
+			_playerJumpState = value;
+		}
+	}
+
+	private float JumpStateTimer;
+
+	public void JumpMovement()
+	{
+		bool jumpKeyDown = Input.GetKeyDown(Settings.CurrentSettings.Jump);
+
+		switch (JumpState)
+		{
+			case Jump.None:
+				if (jumpKeyDown) // If press jump key and can jump
+				{
+					if (OnGround)
+					{
+						JumpState = Jump.PreJump; // Start jump animation
+						FloatTimeLeft = FloatTimerMax;
+					}
+					else if (FloatTimeLeft > 0)
+						JumpState = Jump.Floating;
+				}
+				break;
+
+			case Jump.PreJump:
+				if (JumpStateTimer <= 0)
+				{
+					Velocity += (Mathf.Abs(Velocity.x) > HighJumpMinSpeed ? HighJumpForceMult : 1f) * BaseJumpImpulse * Vector2.up; // Boost internalVelocity
+					JumpState = Jump.HighJump;
+				}
+				break;
+
+			case Jump.HighJump:
+				Velocity.Gravity = 0.1f * 9.81f;
+				if (JumpStateTimer <= 0 || !Input.GetKey(Settings.CurrentSettings.Jump) || OnGround)
+				{
+					JumpState = Jump.None;
+					Velocity.Gravity = GravityScale * 9.81f;
+				}
+				break;
+
+			case Jump.Floating:
+				if (Input.GetKeyUp(Settings.CurrentSettings.Jump))
+					JumpState = Jump.None;
+				break;
 		}
 	}
 
@@ -197,48 +253,47 @@ public class PlayerController : MonoBehaviour
 		if (DashesLeft > 0 && Input.GetKeyDown(Settings.CurrentSettings.Dash))
 		{
 			DashesLeft--;
-			RigidBody.AddForceX(FaceDirection * BaseDashImpulse);
+			Velocity += BaseDashImpulse * FaceDirection * Vector2.right;
 			MoveStateTimer = ShortDashTimerMax;
 		}
 
-		if (IsGrounded && MoveStateTimer <= 0)
+		if (OnGround && MoveStateTimer <= 0)
 			DashesLeft = maxDashes;
 	}
 
 	public void CapSpeed()
 	{
-		if (InAir)
+		if (!OnGround)
 		{
-			CapFall(IsFloating ? FloatSpeedCap : FallSpeedCap);
+			CapFall(JumpState == Jump.Floating ? FloatSpeedCap : FallSpeedCap);
 			CapMovement(AirSpeedCap);
 		}
-		else if (IsGrounded)
-			CapMovement(GroundSpeedCap);
+		CapMovement(GroundSpeedCap);
 	}
 
 	public void CapFall(float speed)
 	{
-		if (RigidBody.velocityY < speed)
-			RigidBody.velocityY = speed;
+		if (Velocity.y < speed)
+			Velocity.y = speed;
 	}
 
 	public void CapMovement(float speed)
 	{
-		if (RigidBody.velocityX < -speed)
-			RigidBody.velocityX = -speed;
-		else if (RigidBody.velocityX > speed)
-			RigidBody.velocityX = speed;
+		if (Velocity.x < -speed)
+			Velocity.x = -speed;
+		else if (Velocity.x > speed)
+			Velocity.x = speed;
 	}
 
 	private void ChooseFrame()
 	{
-		if (IsPreJumping)
+		if (JumpState == Jump.PreJump)
 			SetCurrentSprite(JumpFrames[0]);
-		else if (InAir)
+		else if (!OnGround)
 		{
-			if (RigidBody.velocityY > 0)
+			if (Velocity.y > 0)
 				SetCurrentSprite(JumpFrames[1]);
-			else if (IsFloating)
+			else if (JumpState == Jump.Floating)
 				SetCurrentSprite(FloatFrame);
 			else
 				SetCurrentSprite(FallFrame);

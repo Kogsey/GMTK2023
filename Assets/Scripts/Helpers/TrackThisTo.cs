@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrackToScript : MonoBehaviour
+public class TrackThisTo : MonoBehaviour
 {
 	public Transform tracked;
 	public Vector3 Offset;

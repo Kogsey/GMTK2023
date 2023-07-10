@@ -103,7 +103,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: -1
+  m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: f6c56ef8e3daa2640a15c59c76132652, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -113,7 +113,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &2849999723564999705
 BoxCollider2D:
@@ -222,12 +222,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7976da7e269063a44970c4855ef30889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RigidBody: {fileID: 1064588710281133168}
   SpriteRenderer: {fileID: 1574229720922307214}
+  GUI: {fileID: 0}
+  CoyoteTimer: 0
   ShortDashTimerMax: 0.5
   PreJumpTimerMax: 0.1
-  JumpTimerMax: 0.15
+  ExtendedJumpTimerMax: 0.4
   FloatTimerMax: 3
+  CoyoteTimeMax: 0.05
   BaseSpeedForce: 9
   BaseJumpImpulse: 15
   BaseDashImpulse: 12
@@ -249,3 +251,4 @@ MonoBehaviour:
   FallFrame: {fileID: -6386507142686429062, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   Hitpoints: 3
   MaxImmunity: 1
+  AdjacentItemVelocity: {x: 0, y: 0}
