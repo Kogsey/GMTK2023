@@ -61,4 +61,16 @@ public class MovingPlatform : MonoBehaviour
 			dampedDistanceMoved = Mathf.Lerp(PathLength, DistanceMoved, (PathLength - DistanceMoved) / DampedDistance);
 		return HomePositon + VectorAngle * dampedDistanceMoved;
 	}
+
+	public void OnCollisionEnter2D(Collision2D collision)
+		=> WhileColliding(collision);
+
+	public void OnCollisionStay2D(Collision2D collision)
+		=> WhileColliding(collision);
+
+	public void WhileColliding(Collision2D collision)
+	{
+		if (collision.gameObject.TryGetComponent<PlayerController>(out PlayerController playerController))
+			playerController.AdjacentItemVelocity = Time.deltaTime * MoveSpeed * MovementDirection * VectorAngle;
+	}
 }

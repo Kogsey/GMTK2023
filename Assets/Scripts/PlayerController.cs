@@ -1,6 +1,5 @@
 // Ignore Spelling: Mult Hitpoints Collider
 
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -113,12 +112,17 @@ public class PlayerController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		RigidBody.velocity -= AdjacentItemVelocity;
 		RigidBody.velocityX *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
 		RigidBody.velocityY *= YDrag;
+		RigidBody.velocity += AdjacentItemVelocity;
 		CapSpeed();
 
 		CoyoteTimer -= Time.deltaTime;
+		AdjacentItemVelocity = Vector2.zero;
 	}
+
+	public Vector2 AdjacentItemVelocity;
 
 	// Update is called once per frame
 	private void Update()
@@ -246,7 +250,13 @@ public class PlayerController : MonoBehaviour
 	private void SetCurrentSprite(Sprite value)
 		=> SpriteRenderer.sprite = value;
 
+	public void OnCollisionEnter2D(Collision2D collision)
+		=> WhileColliding(collision);
+
 	public void OnCollisionStay2D(Collision2D collision)
+		=> WhileColliding(collision);
+
+	public void WhileColliding(Collision2D collision)
 	{
 		if (collision.gameObject.TryGetComponent(out Enemy enemy))
 		{
