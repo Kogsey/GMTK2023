@@ -1,23 +1,29 @@
-// Ignore Spelling: Mult Hitpoints Collider
+// Ignore Spelling: Mult HitPoints Collider
 
 using UnityEngine;
+using Utilities.Damage;
+using Utilities.Movement;
+using Utilities.Timing;
 
+[RequireComponent(typeof(GroundCheck), typeof(Rigidbody2D), typeof(SpriteRenderer))]
+[RequireComponent(typeof(DamageHandler))]
 public class PlayerController : MonoBehaviour
 {
-	[Header("Base")]
-	public PhysicsVelocity2D Velocity;
-	public SpriteRenderer SpriteRenderer;
-	public GUI GUI;
+	//public CountDownTimer CountDownTimer;
+	private GroundCheck groundCheck;
+	private PhysicsVelocity2D Velocity;
+	private Rigidbody2D rigidBody;
+	private SpriteRenderer spriteRenderer;
 
-	[Header("Movement")]
 	private float MoveStateTimer;
 	private float FloatTimeLeft;
-	public float CoyoteTimer;
+
+	[Header("Movement")]
 	public float ShortDashTimerMax = 0.5f;
 	public float PreJumpTimerMax = 0.4f;
+	public float JumpDelayTimerMax = 0.5f;
 	public float ExtendedJumpTimerMax = 0.4f;
 	public float FloatTimerMax = 3f;
-	public float CoyoteTimeMax = 0.1f;
 
 	[Space]
 	public float BaseSpeedForce;
@@ -52,116 +58,63 @@ public class PlayerController : MonoBehaviour
 	public Sprite FloatFrame;
 	public Sprite FallFrame;
 
-	[Header("Health")]
-	public const int MaxHitPoints = 3;
-	public int Hitpoints;
-	public float MaxImmunity;
-	private int ImmunityFlasher;
-	public bool Immune => ImmunityTimer >= 0;
-
-	public void OnHit(Enemy attacker)
-	{
-		if (Immune)
-			return;
-
-		attacker.OnHitPlayer();
-		if (GUI != null)
-			GUI.RemoveCog();
-		Hitpoints--;
-		ImmunityTimer = MaxImmunity;
-
-		if (Hitpoints <= 0)
-			StateManager.GameOver();
-	}
-
-	private void UpdateImmunity()
-	{
-		ImmunityTimer -= Time.deltaTime;
-		ImmunityFlasher++;
-
-		if (Immune)
-			SpriteRenderer.color = new Color(1, 0, 0, ImmunityFlasher % 2 == 0 ? 0.5f : 1f);
-		else
-			SpriteRenderer.color = Color.white;
-	}
-
-	private bool OnGround { get => CoyoteTimer >= 0; }
+	private bool CanJump => groundCheck.GetGrounded();
+	private bool OnGround => groundCheck.GetGroundedPure();
 	private float FallSpeedCap => 10 * FloatSpeedCap;
 	private float AirSpeedCap => 1.5f * GroundSpeedCap;
 
 	/// <summary>
 	/// -1 for left, 1 for right
 	/// </summary>
-	private int FaceDirection { get => SpriteRenderer.flipX ? 1 : -1; set => SpriteRenderer.flipX = value == 1; }
+	private int FaceDirection { get => spriteRenderer.flipX ? 1 : -1; set => spriteRenderer.flipX = value == 1; }
 
 	private int DashesLeft;
 	private readonly int maxDashes = 1;
-	private float ImmunityTimer;
+
+	#region Movement
 
 	// Start is called before the first frame update
 	private void Start()
 	{
-		Velocity.Gravity = GravityScale * 9.81f;
+		rigidBody = GetComponent<Rigidbody2D>();
+		groundCheck = GetComponent<GroundCheck>();
+		spriteRenderer = GetComponent<SpriteRenderer>();
+
+		rigidBody.gravityScale = GravityScale;
 	}
 
-	public Vector2 AdjacentItemVelocity;
-
-	private void FixedUpdate()
-		=> GetComponent<Rigidbody2D>().AddForce((Vector2)Velocity / Velocity.DeltaTime);
-
 	// Update is called once per frame
-	private void Update()
+	private void FixedUpdate()
 	{
+		Velocity = new PhysicsVelocity2D(rigidBody.velocity);
 		UpdateTimers();
 
 		Movement();
 
-		UpdateImmunity();
 		FinalPhysicsUpdate();
+		ChooseFrame();
 	}
 
-	// OnPreRender is called before a camera starts rendering the scene
-	private void OnPreRender()
+	private void Update()
 	{
-		ChooseFrame();
+		if (Input.GetKeyDown(Settings.CurrentSettings.Jump))
+			QueueJumpTimer.Reset();
 	}
 
 	public void UpdateTimers()
 	{
 		MoveStateTimer -= Velocity.DeltaTime; // Important to use internalVelocity's delta time
 		FloatTimeLeft -= Velocity.DeltaTime;
-		CoyoteTimer -= Velocity.DeltaTime;
 		JumpStateTimer -= Velocity.DeltaTime;
-	}
-
-	public void FinalPhysicsUpdate()
-	{
-		Velocity.x *= Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right) ? XDrag : XDragWhenNotMoving;
-		Velocity.y *= YDrag;
-
-		CapSpeed();
-		if (OnGround)
-			Velocity.OnGround();
-		Velocity.Step();
-		//Velocity.StepThenApplyTo(transform);
 	}
 
 	public void Movement()
 	{
-		GeneralMovement();
+		if (Input.GetKey(Settings.CurrentSettings.Left) ^ Input.GetKey(Settings.CurrentSettings.Right)) //Exclusive or so do nothing if both held
+			MoveInDirection(Input.GetKey(Settings.CurrentSettings.Left) ? -1 : 1); // Directional movement
+
 		JumpMovement();
 		//DashMovement();
-	}
-
-	public void GeneralMovement()
-	{
-		if (Input.GetKey(Settings.CurrentSettings.Left) ^ Input.GetKey(Settings.CurrentSettings.Right)) //Exclusive or so do nothing if both held
-		{
-			if (Input.GetKey(Settings.CurrentSettings.Left))
-				MoveInDirection(-1);
-			else
-				MoveInDirection(1);
-		}
 	}
 
 	public void MoveInDirection(int direction)
@@ -174,8 +127,9 @@ public class PlayerController : MonoBehaviour
 	{
 		None, // Moves to PreJump or Floating
 		PreJump, // Moves to HighJump
-		HighJump, // Moves to none
+		HighJump, // Moves to JumpDelay
 		Floating, // Moves to none
+		JumpDelay, //Moves to none
 	}
 
 	private Jump _playerJumpState = Jump.None;
@@ -198,30 +152,34 @@ public class PlayerController : MonoBehaviour
 				case Jump.HighJump:
 					JumpStateTimer = ExtendedJumpTimerMax * (Mathf.Abs(Velocity.x) > HighJumpMinSpeed ? HighJumpTimeMult : 1f);
 					break;
+
+				case Jump.JumpDelay:
+					JumpStateTimer = JumpDelayTimerMax;
+					break;
 			}
 			_playerJumpState = value;
 		}
 	}
 
-	private float JumpStateTimer;
+	private float JumpStateTimer = -1;
+	public CountUpTimer QueueJumpTimer;
 
 	public void JumpMovement()
 	{
-		bool jumpKeyDown = Input.GetKeyDown(Settings.CurrentSettings.Jump);
+		bool jumpKey = Input.GetKey(Settings.CurrentSettings.Jump);
 
 		switch (JumpState)
 		{
 			case Jump.None:
-				if (jumpKeyDown) // If press jump key and can jump
+				if (CanJump && !QueueJumpTimer.Check())// If press jump key and can jump
 				{
-					if (OnGround)
-					{
-						JumpState = Jump.PreJump; // Start jump animation
-						FloatTimeLeft = FloatTimerMax;
-					}
-					else if (FloatTimeLeft > 0)
-						JumpState = Jump.Floating;
+					JumpState = Jump.PreJump; // Start jump animation
+					FloatTimeLeft = FloatTimerMax;
+					QueueJumpTimer.Force();
 				}
+				else if (FloatTimeLeft > 0 && jumpKey && !OnGround) // else if can float and jump key down
+					JumpState = Jump.Floating;
+
 				break;
 
 			case Jump.PreJump:
@@ -233,19 +191,28 @@ public class PlayerController : MonoBehaviour
 				break;
 
 			case Jump.HighJump:
-				Velocity.Gravity = 0.1f * 9.81f;
-				if (JumpStateTimer <= 0 || !Input.GetKey(Settings.CurrentSettings.Jump) || OnGround)
+				//Velocity.Gravity = 0.1f * 9.81f;
+				rigidBody.gravityScale = 0.1f;
+				if (JumpStateTimer <= 0 || !jumpKey || OnGround)
 				{
-					JumpState = Jump.None;
-					Velocity.Gravity = GravityScale * 9.81f;
+					JumpState = Jump.JumpDelay;
+					//Velocity.Gravity = GravityScale * 9.81f;
+					rigidBody.gravityScale = GravityScale;
 				}
 				break;
 
 			case Jump.Floating:
-				if (Input.GetKeyUp(Settings.CurrentSettings.Jump))
+				if (!jumpKey || OnGround)
+					JumpState = Jump.None;
+				break;
+
+			case Jump.JumpDelay:
+				if (JumpStateTimer < 0)
 					JumpState = Jump.None;
 				break;
 		}
+
+		QueueJumpTimer.Tick();
 	}
 
 	public void DashMovement()
@@ -257,13 +224,34 @@ public class PlayerController : MonoBehaviour
 			MoveStateTimer = ShortDashTimerMax;
 		}
 
-		if (OnGround && MoveStateTimer <= 0)
+		if (CanJump && MoveStateTimer <= 0)
 			DashesLeft = maxDashes;
 	}
 
+	#region FinalUpdate
+
+	public void FinalPhysicsUpdate()
+	{
+		Velocity.x *= GetXDrag();
+		Velocity.y *= YDrag;
+
+		CapSpeed();
+		if (OnGround)
+			Velocity.OnGround();
+		//Velocity.StepThenApplyTo(transform);
+		rigidBody.velocity = Velocity.GetTotalVelocity();
+	}
+
+	public float GetXDrag()
+		=> (Input.GetKey(Settings.CurrentSettings.Left) || Input.GetKey(Settings.CurrentSettings.Right)) // If pressing movement key
+			?	(((Velocity.x < 0 && Input.GetKey(Settings.CurrentSettings.Right)) || (Velocity.x > 0 && Input.GetKey(Settings.CurrentSettings.Left))) // and if pressing the opposite direction to movement
+				?	XDragWhenNotMoving // High drag when moving in opposite direction to velocity
+				:	XDrag) // Low drag when moving in same dir as velocity
+				:	XDragWhenNotMoving; // High drag when pressing nothing
+
 	public void CapSpeed()
 	{
-		if (!OnGround)
+		if (!CanJump)
 		{
 			CapFall(JumpState == Jump.Floating ? FloatSpeedCap : FallSpeedCap);
 			CapMovement(AirSpeedCap);
@@ -285,11 +273,17 @@ public class PlayerController : MonoBehaviour
 			Velocity.x = speed;
 	}
 
+	#endregion FinalUpdate
+
+	#endregion Movement
+
+	#region Sprites
+
 	private void ChooseFrame()
 	{
 		if (JumpState == Jump.PreJump)
 			SetCurrentSprite(JumpFrames[0]);
-		else if (!OnGround)
+		else if (!CanJump)
 		{
 			if (Velocity.y > 0)
 				SetCurrentSprite(JumpFrames[1]);
@@ -303,25 +297,10 @@ public class PlayerController : MonoBehaviour
 	}
 
 	private void SetCurrentSprite(Sprite value)
-		=> SpriteRenderer.sprite = value;
+		=> spriteRenderer.sprite = value;
 
-	public void OnCollisionEnter2D(Collision2D collision)
-		=> WhileColliding(collision);
+	#endregion Sprites
 
-	public void OnCollisionStay2D(Collision2D collision)
-		=> WhileColliding(collision);
-
-	public void WhileColliding(Collision2D collision)
-	{
-		if (collision.gameObject.TryGetComponent(out Enemy enemy))
-		{
-			if (enemy.CollisionTypes == EnemyCollisionTypes.Hurt)
-				OnHit(enemy);
-		}
-		else if (IsUpFacing(collision))
-			CoyoteTimer = CoyoteTimeMax;
-	}
-
-	public bool IsUpFacing(Collision2D collision)
-		=> collision.contactCount > 0 && Vector2.Dot(collision.GetContact(0).normal, Vector2.up) > 0.5;
+	//public bool IsUpFacing(Collision2D collision)
+	//	=> collision.contactCount > 0 && Vector2.Dot(collision.GetContact(0).normal, Vector2.up) > 0.5;
 }

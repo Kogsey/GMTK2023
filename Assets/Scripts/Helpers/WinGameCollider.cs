@@ -1,7 +1,5 @@
 // Ignore Spelling: Collider
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WinGameCollider : MonoBehaviour

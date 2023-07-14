@@ -17,5 +17,4 @@ public class PatrolFloater : Floater
 	private Vector2 PathAngleVector => new(Mathf.Cos(PathAngleRadians), Mathf.Sin(PathAngleRadians));
 	private float FinalLerp => (Mathf.Cos(PosLerp / (2 * Mathf.PI)) + 1) / 2;
 	public override Vector2 RailedPosition => StartPos + PathLength * FinalLerp * PathAngleVector;
-
 }

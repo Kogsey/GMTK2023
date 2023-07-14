@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+using Utilities.Damage;
 
 public class GUI : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class GUI : MonoBehaviour
 	public Vector2 SpacingInitial;
 	public float ExitDegreesPerSecond;
 	private const float CogRadius = 0.5f;
-	public int StartCogCount => PlayerController.MaxHitPoints;
+	public int StartCogCount => DamageHandler.MaxHitPoints;
 
 	public List<Transform> Cogs = new();
 	public Transform CogPrefab;

@@ -10,9 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 7116871162898145343}
   - component: {fileID: 1574229720922307214}
-  - component: {fileID: 1064588710281133168}
+  - component: {fileID: 122364639234277814}
   - component: {fileID: 2849999723564999705}
   - component: {fileID: 49132778819903440}
+  - component: {fileID: 3730775657075768498}
+  - component: {fileID: 2858053663278767126}
   - component: {fileID: 6725319229431550291}
   m_Layer: 0
   m_Name: Player
@@ -88,7 +90,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &1064588710281133168
+--- !u!50 &122364639234277814
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -98,7 +100,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 4426056891217766689}
   m_BodyType: 0
   m_Simulated: 1
-  m_UseFullKinematicContacts: 1
+  m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -113,7 +115,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!61 &2849999723564999705
 BoxCollider2D:
@@ -210,6 +212,45 @@ MonoBehaviour:
     - rid: 2560557183340380161
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
+--- !u!114 &3730775657075768498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4426056891217766689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12a0aafadde663e499c1a9da056b53a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GUI: {fileID: 0}
+  HitPoints: 3
+  ImmunityTimer:
+    <Time>k__BackingField: 0
+    <MaxTime>k__BackingField: 1
+--- !u!114 &2858053663278767126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4426056891217766689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04bdf019376fbce4189ed27e9943b417, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundLength: 0.95
+  colliderOffset: {x: 0, y: 0, z: 0}
+  accountForVelocity: 1
+  maxVelocity: 0.5
+  groundedTimer:
+    <Time>k__BackingField: 0
+    <MaxTime>k__BackingField: 0.05
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &6725319229431550291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,16 +263,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7976da7e269063a44970c4855ef30889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpriteRenderer: {fileID: 1574229720922307214}
-  GUI: {fileID: 0}
-  CoyoteTimer: 0
   ShortDashTimerMax: 0.5
   PreJumpTimerMax: 0.1
-  ExtendedJumpTimerMax: 0.4
+  JumpDelayTimerMax: 0.5
+  ExtendedJumpTimerMax: 0.15
   FloatTimerMax: 3
-  CoyoteTimeMax: 0.05
   BaseSpeedForce: 9
-  BaseJumpImpulse: 15
+  BaseJumpImpulse: 600
   BaseDashImpulse: 12
   FloatSpeedCap: -1.5
   GroundSpeedCap: 6
@@ -249,6 +287,6 @@ MonoBehaviour:
   - {fileID: 1569261468809307932, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   FloatFrame: {fileID: 8916896056068427944, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
   FallFrame: {fileID: -6386507142686429062, guid: a7a93648a8f7f224e9bc1cb23ea96dfb, type: 3}
-  Hitpoints: 3
-  MaxImmunity: 1
-  AdjacentItemVelocity: {x: 0, y: 0}
+  QueueJumpTimer:
+    <Time>k__BackingField: 100
+    <MaxTime>k__BackingField: 0.06

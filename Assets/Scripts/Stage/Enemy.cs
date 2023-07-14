@@ -47,7 +47,6 @@ public abstract class Enemy : MonoBehaviour
 			RigidBody.constraints |= RigidbodyConstraints2D.FreezePositionX;
 		if (ConstrainYPosition)
 			RigidBody.constraints |= RigidbodyConstraints2D.FreezePositionY;
-
 	}
 
 	public virtual void InternalStart()
@@ -64,7 +63,6 @@ public abstract class Enemy : MonoBehaviour
 
 	public virtual void OnHitPlayer()
 	{
-
 	}
 }
 

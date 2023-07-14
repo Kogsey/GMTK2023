@@ -1103,7 +1103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &505665801
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2780,17 +2780,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d944ee81a085324d99a2af98311d06d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemInfo:
-  - "Once upon a time there lived a princess.\r\nShe was sweet and fair, and like
-    with most princesses\u2026 she was kidnapped! \r\n\r\nNow you know how this story
-    goes. \r\nHer dashing young friend set out on his journey of adventure and daring
-    to rescue our princess.\n\r\nHe discovered her whereabouts in an abandoned warehouse
-    that had been taken over by the evil Dr. Cogsworth.\r\nBut upon reaching the
-    entrance, he was defeated by the robot guarding the door!\r\n\r\nAnd so it seems
-    it is up to the princess to save herself\u2026"
-  textSpeed: 0.02
+  itemInfo: "Once upon a time there lived a princess.\r\nShe was sweet and fair,
+    and like with most princesses\u2026 she was kidnapped! \r\n\r\nNow you know how
+    this story goes. \r\nHer dashing young friend set out on his journey of adventure
+    and daring to rescue our princess.\n\r\nHe discovered her whereabouts in an abandoned
+    warehouse that had been taken over by the evil Dr. Cogsworth.\r\nBut upon reaching
+    the entrance, he was defeated by the robot guarding the door!\r\n\r\nAnd so it
+    seems it is up to the princess to save herself\u2026"
   itemInfoText: {fileID: 1086085221}
-  PlayButton: {fileID: 505665800}
+  OnTextFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 505665800}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &1206385244
 GameObject:
   m_ObjectHideFlags: 0
@@ -3034,8 +3046,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1086085224}
-        m_TargetAssemblyTypeName: IntroText, Assembly-CSharp
-        m_MethodName: ActivateText
+        m_TargetAssemblyTypeName: Utilities.UI.TextTyper, Assembly-CSharp
+        m_MethodName: StartTyping
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3438,7 +3450,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 112.05
+  m_fontSize: 97.45
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
